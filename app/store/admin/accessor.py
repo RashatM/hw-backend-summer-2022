@@ -11,7 +11,19 @@ if typing.TYPE_CHECKING:
 
 class AdminAccessor(BaseAccessor):
     async def get_by_email(self, email: str) -> Admin | None:
-        raise NotImplemented
+        async with self.app.database.session() as session:
+            admin = (await session.execute(
+                select(AdminModel)
+                .where(AdminModel.email == email)
+            )).scalar()
+
+        if not admin:
+            return
+
+        return admin.to_dc()
 
     async def create_admin(self, email: str, password: str) -> Admin:
-        raise NotImplemented
+        async with self.app.database.session.begin() as session:
+            new_admin = AdminModel(email=email, password=password)
+            session.add(new_admin)
+            return new_admin.to_dc()
