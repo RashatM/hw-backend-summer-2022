@@ -93,6 +93,7 @@ class QuizAccessor(BaseAccessor):
 
         if not question:
             return
+
         return question.to_dc()
 
     async def list_questions(self, theme_id: int | None = None) -> list[Question]:
